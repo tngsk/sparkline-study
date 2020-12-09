@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <style>
+
+        svg:not(:root) {
+            overflow: hidden;
+        }
+
+        svg {
+            overflow: hidden;
+            vertical-align: middle;
+        }
+        
+        * {
+            box-sizing: border-box;
+            /* margin: 0;
+            padding: 0; */
+            /* border: 1px red solid !important; */
+        }
+        body {
+            font-family: 'M PLUS Rounded 1c', 'Roboto', sans-serif !important;
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.5;
+            display: block;
+        }
+        .sparkline {
+            fill: none;
+            stroke: #000;
+            stroke-width: 0.5px;
+        }
+        .sparkcircle {
+            fill: #f00;
+            stroke: none;
+        }
+        .text-focus {
+            color:#dc3545 !important;
+        }
+        b, strong {
+            font-weight: bolder;
+        }
+    </style>
+
+    文章中に <span id="graph1"></span><strong id='graph1-number' class='text-focus'>400ppm</strong> グラフが入ります
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+    <script type="text/javascript" src="https://code.highcharts.com/modules/data.js"></script>
+    <script type="text/javascript">
+
+
+
+    Highcharts.SparkLine = (a, b, c) => {
+
+        const hasRenderToArg = typeof a === 'string' || a.nodeName;
+        let options = arguments[hasRenderToArg ? 1 : 0];
+
+        const myChart = {
+            chart: {
+                backgroundColor: null,
+                borderWidth: 0,
+                type: 'area',
+                margin: [2, 0, 2, 0],
+                width: width,
+                height: height,
+                style: {
+                    overflow: 'visible'
+                }
+            },
+            title: {
+                text: ''
+            },
+            credits: {
+                enabled: false
+            },
+            xAxis: {
+                labels:{
+                    enabled: false
+                },
+                title: {
+                    text: null
+                }
+            },
+            yAxis: {
+                labels:{
+                    enabled: false
+                },
+                title: {
+                    text: null
+                }          
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                hideDelay: 0,
+                outside: true,
+                shared: true
+            },
+            plotOptions: {
+                series: {
+                    animation: false,
+                    lineWidth: 1,
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    marker: {
+                        radius: 1,
+                        states: {
+                            hover: {
+                                radius: 2
+                            }
+                        }
+                    },
+                    fillOpacity: 0.25
+                }
+            }
+        };
+
+        options = Highcharts.merge(defaultOptions, options);
+
+        return hasRenderToArg ?
+            new Highcharts.Chart(a, options, c) : new Highcharts.Chart(options, b);
+    };
+    
+    var tag = document.querySelector('#graph1')
+
+
+    $(document).ready( () =>{
+        var dataset = []
+        var width = 100;
+        var height = 25;
+
+        $.get('data.csv', (csv) => {
+            $('#graph1').highcharts({
+                chart:{
+                    backgroundColor: null,
+                    borderWidth: 0,
+                    type: 'area',
+                    margin: [2, 0, 2, 0],
+                    width: width,
+                    height: height,
+                    style: {
+                        overflow: 'visible'
+                    }
+                },
+                title: {
+                    text: ''
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis: {
+                    labels:{
+                        enabled: false
+                    },
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    labels:{
+                        enabled: false
+                    },
+                    title: {
+                        text: null
+                    }          
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    hideDelay: 0,
+                    outside: true,
+                    shared: true,
+                    headerFormat: '',
+                    pointFormat: '{point.x} / {point.y}'
+                },
+                plotOptions: {
+                    series: {
+                        animation: false,
+                        lineWidth: 1,
+                        shadow: false,
+                        states: {
+                            hover: {
+                                lineWidth: 1
+                            }
+                        },
+                        marker: {
+                            radius: 1,
+                            states: {
+                                hover: {
+                                    radius: 2
+                                }
+                            }
+                        },
+                        fillOpacity: 0.25
+                    }
+                },
+                data: {
+                    csv:csv
+                }
+            });
+        })
+    });
+
+
+
+    // var x = d3.scaleLinear().range([0, width*0.95]);
+    // var y = d3.scaleLinear().range([height, 0]);
+
+    // var line = d3.line()
+    //     .curve(d3.curveBasis)
+    //     .x(d => x(d.index))
+    //     .y(d => y(d.data))
+
+    // d3.csv('data.csv')
+    //     .then((data) => {
+    //         dataset = data
+    //         sparkline('#graph1', dataset)
+    //     })
+    //     .catch((error) => {
+    //         // error handler
+    //     })
+
+    // var print = () => {
+    //     d3.select('body').selectAll('p')
+    //         .data(dataset)
+    //         .enter()
+    //         .append('p')
+    //         .text(d => d.data)
+    // }
+
+    // var sparkline = (elemId, data) => {
+
+    //     x.domain(d3.extent(data, d => +d.index ))
+    //     y.domain(d3.extent(data, d => +d.data ))
+
+    //     var svg = d3.select(elemId)
+    //                 .append('svg')
+    //                 .attr('width', width)
+    //                 .attr('height', height)
+    //                 .append('g')
+    //                 .attr('transform', 'translate(0, 2)')
+
+    //     svg.append('path')
+    //         .datum(data)
+    //         .attr('class', 'sparkline')
+    //         .attr('d', line)
+
+    //     svg.append('circle')
+    //         .attr('class', 'sparkcircle')
+    //         .attr('cx', x(data[data.length-1].index))
+    //         .attr('cy', y(data[data.length-1].data))
+    //         .attr('r', 1.5);
+    // }
+
+    </script>
+</body>
+</html>

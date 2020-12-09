@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body class="">
+    <style>
+        svg {
+            overflow: hidden;
+            vertical-align: middle;
+        }
+        * {
+            box-sizing: border-box;
+            /* margin: 0;
+            padding: 0; */
+            /* border: 1px red solid !important; */
+        }
+        body {
+            font-family: 'M PLUS Rounded 1c', 'Roboto', sans-serif !important;
+            color: #222;
+            font-size: 1rem;
+            line-height: 1.5;
+            display: block;
+            background-color: #ccddcc;
+        }
+        .sparkline {
+            fill: none;
+            stroke: #333;
+            stroke-width: 1.2px;
+        }
+        .sparkcircle {
+            fill: #f00;
+            stroke: none;
+        }
+        .red {
+            color:#f00 !important;
+        }
+
+        .blue {
+            color:darkblue !important;
+        }
+
+        b, strong {
+            color: black;
+            font-size: 0.8em;
+            font-weight: bolder;
+            margin-left: 0.25em;
+            margin-right: 0.25em;
+            font-family:monospace;
+        }
+
+        small {
+            color: black;
+            font-weight: bolder; 
+            font-size: 0.5em;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            margin: 1rem;
+            padding: 3rem;
+            background-color: #eee;
+
+        }
+        .stripe {
+            background-image:repeating-linear-gradient(-45deg,rgb(221, 221, 221), rgb(221, 221, 221) 2px,transparent 0, transparent 10px);
+        }
+
+        .dot {
+            background-image:radial-gradient(rgba(0, 225, 255, 0.5) 10%, transparent 10%);
+            background-size: 15px 15px;
+        }
+
+    </style>
+
+
+    <div class="card">
+        <p><strong>二酸化炭素</strong></p>
+        <p>過去1,000年の二酸化炭素は概ね280ppmで推移していたが、1960年以降に急増し、現在は400ppmを超えている。</p>
+        <p>
+            <strong>1,000 YEARS AGO</strong>
+            <span id='graph1'></span>
+            <strong id='graph1-label'>CO<sup>2</sup></strong>
+            <strong id='graph1-value' class='red'></strong><small class="red">ppm</small>
+            <strong id='graph1-index'>2019</strong>
+        </p>
+    </div>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script type="text/javascript">
+    let dataset = []
+
+    const width = 100;
+    const height = 25;
+
+    const margin = {top: 2, bottom: 2, left: 2, right: 2}
+
+    const x = d3.scaleLinear().range([margin.left, width-margin.right]);
+    const y = d3.scaleLinear().range([height-margin.bottom, margin.top]);
+
+
+    const xAxis = g => g
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).ticks(width / 20))
+        .call(g => g.select(".domain").remove())
+
+    const line = d3.line()
+        .curve(d3.curveBasis)
+        .x(d => x(d.year))
+        .y(d => y(d.ppm))
+
+    var tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+
+    const format1f = d3.format('.1f')
+
+    const datafile = 'lawdome_co2_present.csv'
+
+    d3.csv(datafile)
+        .then((data) => {
+            dataset = data
+            sparkline('#graph1', dataset)
+        })
+        .catch((error) => {
+            // error handler
+        })
+
+    var print = () => {
+        d3.select('body').selectAll('p')
+            .data(dataset)
+            .enter()
+            .append('p')
+            .text(d => d.ppm)
+    }
+
+    const sparkline = (elemId, data) => {
+
+        x.domain(d3.extent(data, d => +d.year ))
+        y.domain(d3.extent(data, d => +d.ppm ))
+
+        var label_value = d3.select(elemId + '-value')
+        let label_index = d3.select(elemId + '-index')
+
+        const init_label = () => {
+            label_index.html(data[data.length-1].year)
+            label_value.html(data[data.length-1].ppm)
+        }
+        const update_label = (d) => {
+            label_index.html(d.year)
+            label_value.html(format1f(d.ppm))
+        }
+
+        var svg = d3.select(elemId)
+                    .append('svg')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .append('g')
+                    .attr('transform', 'translate(0, 0)')
+
+        svg.append('rect')
+            .attr('x', 0)
+            .attr('y', y(285))
+            .attr('width', width)
+            .attr('height', y(285))
+            .style('fill','#ccddcc')
+
+    
+        // svg.append('g')
+        //     .call(xAxis)
+
+        svg.append('path')
+            .datum(data)
+            .attr('class', 'sparkline')
+            .attr('d', line)
+
+        svg.append('circle')
+            .attr('class', 'sparkcircle')
+            .attr('cx', x(data[data.length-1].year))
+            .attr('cy', y(data[data.length-1].ppm))
+            .attr('r', 1.5);
+
+        // svg.append('rect')
+        //     .attr('width', width)
+        //     .attr('height', height)
+        //     .style('fill', 'none')
+        //     .style('pointer-events', 'all')
+        //     .on('mousemove', (event) => {
+        //         var idx = Math.floor(x.invert(d3.pointer(event)[0]))
+        //         //idxTag.html(x.invert(d3.pointer(event)[0]))
+                
+        //         label.html(format2f(data[idx].ppm))
+        //         //idxTag.html(format2f(data[idx].year))
+        //     })
+        //     .on('mouseout', () => {
+        //         label.html(format2f(data[data.length-1].ppm))
+        //     })
+        svg.append('g')
+            .attr('fill', 'none')
+            .attr('pointer-events', 'all')
+            .selectAll('rect')
+            .data(d3.pairs(data))
+            .join('rect')
+                .attr('x', ([a,b]) => x(a.year))
+                .attr('height', height)
+                .attr('width', ([d1,d2]) => x(d2.year) - x(d1.year))
+                .on('mouseover', (event,[d]) => { update_label(d) })
+                .on('mouseout', () =>{ init_label() })
+        init_label()
+}
+
+    </script>
+</body>
+</html>
