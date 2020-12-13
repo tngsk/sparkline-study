@@ -1,0 +1,82 @@
+* {
+    box-sizing: border-box;
+    /* margin: 0;
+    padding: 0; */
+    /* border: 1px red solid !important; */
+}
+
+svg {
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+body {
+    font-family: 'M PLUS Rounded 1c', 'Roboto', sans-serif !important;
+    color: #222;
+    font-size: 1rem;
+    line-height: 1.5;
+    display: block;
+    background-color: #ccddcc;
+}
+
+.graph-placeholder {
+    width: 100px;
+    height: 25px;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+ 
+.sparkline {
+    fill: none;
+    stroke: #333;
+    stroke-width: 1.2px;
+}
+
+.sparkcircle {
+    fill: #f00;
+    stroke: none;
+}
+
+.red {
+    color:#f00 !important;
+}
+
+.blue {
+    color:darkblue !important;
+}
+
+b, strong {
+    color: black;
+    font-size: 0.8em;
+    font-weight: bolder;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    font-family:monospace;
+}
+
+small {
+    color: black;
+    font-weight: bolder; 
+    font-size: 0.5em;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin: 1rem;
+    padding: 3rem;
+    background-color: #eee;
+}
+
+.stripe {
+    background-image:repeating-linear-gradient(-45deg,rgb(221, 221, 221), rgb(221, 221, 221) 2px,transparent 0, transparent 10px);
+}
+
+.dot {
+    background-image:radial-gradient(rgba(0, 225, 255, 0.5) 10%, transparent 10%);
+    background-size: 15px 15px;
+}
